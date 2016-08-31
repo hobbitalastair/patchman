@@ -23,6 +23,7 @@ handle_diff() {
     local running=true
     local input
     while ${running}; do
+        printf '>>> '
         read input
         case "${input}" in
             r|revert)
