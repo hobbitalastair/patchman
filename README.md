@@ -13,6 +13,4 @@ File manager script
 ## Utilities ##
 
 - patchman: add/update/remove patches (with hooks)
-- pacback: find files with differences
-- pacrevert: replace the given files with one from a package
 
