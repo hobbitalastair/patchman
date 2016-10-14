@@ -107,14 +107,21 @@ get_pkg_file() {
 }
 
 diff_file() {
-    # Generate a diff for the given files.
+    # Generate a diff for the given file.
     local file="$1"
     message debug "Generating diff for '${file}'"
     diff "${file}" <(get_pkg_file "${file}")
 }
 
+original_file() {
+    # Print the original file.
+    local file="$1"
+    message debug "Printing original file for '${file}'"
+    get_pkg_file "${file}"
+}
+
 revert() {
-    # Revert the given files to the one provided by the package.
+    # Revert the given file to the one provided by the package.
     local file="$1"
     message debug "Reverting '${file}'"
     pushd / > /dev/null
@@ -129,6 +136,7 @@ HELP=false
 PRINT_VERSION=false
 LIST_CHANGED=false
 FILE_ARGS=false
+ORIGINAL=false
 DIFF=false
 REVERT=false
 TARGETS=()
@@ -140,6 +148,7 @@ for arg in "$@"; do
         -d|--debug) export VERBOSE="2";;
 
         -l|--list-changed) LIST_CHANGED="true";;
+        -o|--original) ORIGINAL="true"; FILE_ARGS="true";;
         -D|--diff) DIFF="true"; FILE_ARGS="true";;
         -r|--revert) REVERT="true"; FILE_ARGS="true";;
 
@@ -171,6 +180,7 @@ if "${HELP}"; then
     ${C_OK}-q|--quiet${C_RESET}              Run quitely
 
     ${C_OK}-l|--list-changed${C_RESET}       List the changed backup files
+    ${C_OK}-o|--original <files>${C_RESET}   Print the original versions
     ${C_OK}-D|--diff <files>${C_RESET}       Diff the given files
     ${C_OK}-r|--revert <files>${C_RESET}     Revert the given files
 
@@ -190,6 +200,9 @@ fi
 for file in "${TARGETS[@]}"; do
     if [ ! -f "${file}" ]; then
         error 1 "Could not find file '${file}'"
+    fi
+    if "${ORIGINAL}"; then
+        original_file "${file}"
     fi
     if "${DIFF}"; then
         diff_file "${file}"
