@@ -18,5 +18,14 @@ I need to implement some kind of database.
 I need to implement saving changes to a database.
 I need to implement adding patches to a file and saving that.
 
-I need to implement hooks.
+## Hooks ##
+
+Hooks need to run if:
+- A .pacnew file is generated (attempt to merge automatically, potentially
+  problematic with the current architecture)
+- A file in the "drop-in" db is changed.
+
+## Drop-in DB ##
+
+Store patches in /var/lib or in /etc?
 
