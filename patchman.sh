@@ -6,6 +6,8 @@
 # Email:    hobbitalastair at yandex dot com
 # Date:     24-9-2016
 
+shopt -s nullglob
+
 VERSION=0.1
 
 PACBACK="./pacback"
@@ -102,7 +104,22 @@ get_pkg_file() {
             error 3 "Failed to extract '${pkg}'!"
         popd > /dev/null
     fi
-    printf '%s/%s\n' "${TMPDIR}" "${file:1}"
+
+    local path="${TMPDIR}/${file:1}"
+    if ! "${ORIGINAL}"; then
+        if [ -f "${PATCHDIR}/${file:1}" ]; then
+            message debug "Replacing file"
+            cat "${PATCHDIR}/${file:1}" > "${path}"
+        else
+            local patch
+            for patch in "${PATCHDIR}/${file:1}/"*.patch; do
+                message debug "Applying patch ${patch} to ${path}"
+                patch "${path}" < "${patch}"
+            done
+        fi
+    fi
+
+    printf '%s\n' "${path}"
 }
 
 vimdiff_file() {
