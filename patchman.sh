@@ -132,8 +132,6 @@ revert() {
 
 # Parse the arguments.
 VERBOSE="${VERBOSE:-1}"
-HELP=false
-PRINT_VERSION=false
 LIST_CHANGED=false
 FILE_ARGS=false
 ORIGINAL=false
@@ -142,8 +140,25 @@ REVERT=false
 TARGETS=()
 for arg in "$@"; do
     case "${arg}" in
-        -h|--help) HELP="true";;
-        -v|--version) PRINT_VERSION="true";;
+        -h|--help)
+            printf "${C_BOLD}%s${C_RESET} %s\n\n" "${0}" "${VERSION}"
+            printf "Manage changes to packaged files.
+
+    ${C_OK}-h|--help${C_RESET}               Print this message
+    ${C_OK}-v|--version${C_RESET}            Print the version
+    ${C_OK}-d|--debug${C_RESET}              Run verbosely
+    ${C_OK}-q|--quiet${C_RESET}              Run quitely
+
+    ${C_OK}-l|--list-changed${C_RESET}       List the changed backup files
+    ${C_OK}-o|--original <files>${C_RESET}   Print the original versions
+    ${C_OK}-D|--diff <files>${C_RESET}       Diff the given files
+    ${C_OK}-r|--revert <files>${C_RESET}     Revert the given files
+
+Author: Alastair Hughes <hobbitalastair at yandex dot com>\n"
+            exit 0;;
+        -v|--version)
+            printf "%s version %s\n" "$0" "${VERSION}"
+            exit 0;;
         -q|--quiet) export VERBOSE="0";;
         -d|--debug) export VERBOSE="2";;
 
@@ -167,30 +182,6 @@ fi
 
 if [ "$#" -eq 0 ]; then
     printf "${C_BOLD}%s${C_RESET} %s\n" "${0}" "${VERSION}" 1>&2
-fi
-
-# Run the commands.
-if "${HELP}"; then
-    printf "${C_BOLD}%s${C_RESET} %s\n\n" "${0}" "${VERSION}"
-    printf "Manage changes to packaged files.
-
-    ${C_OK}-h|--help${C_RESET}               Print this message
-    ${C_OK}-v|--version${C_RESET}            Print the version
-    ${C_OK}-d|--debug${C_RESET}              Run verbosely
-    ${C_OK}-q|--quiet${C_RESET}              Run quitely
-
-    ${C_OK}-l|--list-changed${C_RESET}       List the changed backup files
-    ${C_OK}-o|--original <files>${C_RESET}   Print the original versions
-    ${C_OK}-D|--diff <files>${C_RESET}       Diff the given files
-    ${C_OK}-r|--revert <files>${C_RESET}     Revert the given files
-
-Author: Alastair Hughes <hobbitalastair at yandex dot com>\n"
-    exit 0
-fi
-
-if "${PRINT_VERSION}"; then
-    printf "%s version %s\n" "$0" "${VERSION}"
-    exit 0
 fi
 
 if "${LIST_CHANGED}"; then
