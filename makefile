@@ -5,10 +5,6 @@ LDFLAGS = -lalpm
 OBJS = $(patsubst %.c,%,$(wildcard *.c))
 
 %: %.c
-	# Indent and remove backups.
-	indent -kr -nut $<
-	rm $<~
-
 	${CC} $< -o $@ ${CFLAGS} ${LDFLAGS}
 
 all: $(OBJS)
