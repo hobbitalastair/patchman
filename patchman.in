@@ -10,9 +10,9 @@ shopt -s nullglob
 
 VERSION=0.1
 
-PACBACK="./pacback"
-PATCHDIR="./patches"
-CACHEDIR="/var/cache/pacman/pkg/"
+PACBACK="@PACBACK@"
+PATCHDIR="@PATCHDIR@"
+CACHEDIR="@CACHEDIR@"
 
 # Define some colors.
 # Alternative start appears to be '\x1b['
