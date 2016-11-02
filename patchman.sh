@@ -75,22 +75,16 @@ list_changed() {
 
 get_pkg_owning() {
     # Print the name of the package owning the given file.
-    pacman -Qqo "${file}"
-    if [ "$?" -ne 0 ]; then
+    pacman -Qqo "${file}" || \
         error 1 "Could not find an owner for '${file}'"
-    fi
 }
 
 get_pkg_file() {
-    # Print the actual packaged file to stdout.
+    # Print a path to the actual packaged file to stdout.
     local file="$1"
 
-    if [ "${2}" != "extract" ]; then
-        local bsdtar_args="-O"
-    fi
-
     local pkgname
-    pkgname="$(get_pkg_owning "${file}")" || return "$?"
+    pkgname="$(get_pkg_owning "${file}")" || exit "$?"
 
     pkginfo="$(pacman -Qi --color=never "${pkgname}")" || \
         error 2 "Could not find information on package '${pkgname}'"
@@ -103,38 +97,39 @@ get_pkg_file() {
     if [ ! -f "${pkg}".pkg.tar.* ]; then
         error 3 "Could not find package for ${pkgname}"
     else
-        bsdtar "${bsdtar_args}" -xf "${pkg}".pkg.tar.* "${file:1}" || \
+        pushd "${TMPDIR}" > /dev/null
+        bsdtar -xf "${pkg}".pkg.tar.* "${file:1}" || \
             error 3 "Failed to extract '${pkg}'!"
+        popd > /dev/null
     fi
+    printf '%s/%s\n' "${TMPDIR}" "${file:1}"
 }
 
 vimdiff_file() {
     # Generate a diff for the given file.
     local file="$1"
-    vimdiff "${file}" <(get_pkg_file "${file}")
+    vimdiff "${file}" "$(get_pkg_file "${file}")"
 }
 
 diff_file() {
     # Generate a diff for the given file.
     local file="$1"
     message debug "Generating diff for '${file}'"
-    diff "${file}" <(get_pkg_file "${file}")
+    diff "${file}" "$(get_pkg_file "${file}")"
 }
 
 print_file() {
     # Print the unpatched file.
     local file="$1"
     message debug "Printing file for '${file}'"
-    get_pkg_file "${file}"
+    cat "$(get_pkg_file "${file}")"
 }
 
 revert() {
     # Revert the given file to the one provided by the package.
     local file="$1"
     message debug "Reverting '${file}'"
-    pushd / > /dev/null
-    get_pkg_file "${file}" "extract"
-    popd > /dev/null
+    mv "$(get_pkg_file "${file}")" "${file}"
 }
 
 
@@ -204,6 +199,12 @@ fi
 if "${LIST_CHANGED}"; then
     list_changed
 fi
+
+# Create a cachedir. This is used for extracting files, to preserve
+# permissions.
+TMPDIR="$(mktemp -d "${TMPDIR:-/tmp}/patchman.XXXX")" || \
+    error 1 "Could not create a temporary dir!"
+trap "rm -rf '${TMPDIR}'" EXIT
 
 for file in "${TARGETS[@]}"; do
     if [ ! -f "${file}" ]; then
