@@ -67,6 +67,9 @@ list_changed() {
         elif [ ! -r "/${file}" ]; then
             message warn "Skipping ${file}"
         else 
+            if ! "${ORIGINAL}" && [ -f "${PATCHDIR}/${file}" ]; then
+                sum="$(md5sum "${PATCHDIR}/${file}" | cut -d' ' -f1)"
+            fi
             newsum="$(md5sum "/${file}" | cut -d' ' -f1)"
             if [ -n "${newsum}" ] && [ "${newsum}" != "${sum}" ]; then
                 message info "${file} has been changed"
@@ -149,6 +152,28 @@ revert() {
     mv "$(get_pkg_file "${file}")" "${file}"
 }
 
+save() {
+    # Save the given file.
+    local file="$1"
+    message debug "Saving '${file}'"
+    if [ ! -d "${PATCHDIR}/$(dirname "${file:1}")" ]; then
+        mkdir -p "${PATCHDIR}/$(dirname "${file:1}")"
+    fi
+    cat "${file}" > "${PATCHDIR}/${file:1}" || \
+        error 1 "Failed to save '${file}'!"
+}
+
+ignore() {
+    # Mark the given file as ignored.
+    local file="$1"
+    message debug "Marking '${file}' as ignored"
+    path="${PATCHDIR}/${file:1}"
+    if [ ! -d "${path}" ]; then
+        mkdir -p "${path}" || error 1 "Failed to create ${path}!"
+    fi
+    : > "${PATCHDIR}/${file:1}/IGNORE" || \
+        error 1 "Failed to ignore ${file}!"
+}
 
 # Parse the arguments.
 VERBOSE="${VERBOSE:-1}"
@@ -160,6 +185,8 @@ VIMDIFF=false
 DIFF=false
 PRINT=false
 REVERT=false
+SAVE=false
+IGNORE=false
 TARGETS=()
 for arg in "$@"; do
     case "${arg}" in
@@ -175,10 +202,12 @@ for arg in "$@"; do
     ${C_OK}-o|--original${C_RESET}           Use the original file unpatched
 
     ${C_OK}-l|--list-changed${C_RESET}       List the changed backup files
-    ${C_OK}-i|--vimdiff <files>${C_RESET}    Interactively diff the files
+    ${C_OK}-v|--vimdiff <files>${C_RESET}    Interactively diff the files
     ${C_OK}-D|--diff <files>${C_RESET}       Diff the given files
     ${C_OK}-p|--print <files>${C_RESET}      Print the patched file
     ${C_OK}-r|--revert <files>${C_RESET}     Revert the given files
+    ${C_OK}-s|--save <files>${C_RESET}       Save the changes to the file
+    ${C_OK}-i|--ignore <files>${C_RESET}     Mark the given files as ignored
 
 Author: Alastair Hughes <hobbitalastair at yandex dot com>\n"
             exit 0;;
@@ -192,9 +221,11 @@ Author: Alastair Hughes <hobbitalastair at yandex dot com>\n"
 
         -l|--list-changed) LIST_CHANGED="true";;
         -p|--print) PRINT="true"; FILE_ARGS="true";;
-        -i|--vimdiff) VIMDIFF="true"; FILE_ARGS="true";;
+        -v|--vimdiff) VIMDIFF="true"; FILE_ARGS="true";;
         -D|--diff) DIFF="true"; FILE_ARGS="true";;
         -r|--revert) REVERT="true"; FILE_ARGS="true";;
+        -s|--save) SAVE="true"; FILE_ARGS="true";;
+        -i|--ignore) IGNORE="true"; FILE_ARGS="true";;
 
         *) if "${FILE_ARGS}"; then
             TARGETS+=("${arg}")
@@ -238,5 +269,11 @@ for file in "${TARGETS[@]}"; do
     fi
     if "${REVERT}"; then
         revert "${file}"
+    fi
+    if "${SAVE}"; then
+        save "${file}"
+    fi
+    if "${IGNORE}"; then
+        ignore "${file}"
     fi
 done
