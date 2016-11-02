@@ -35,6 +35,5 @@ Order of handling for patches:
 - `*.patch`             Apply the patches
 
 Additional flags:
-- -s|--save         Save the patch into the database
 - -u|--unowned      Print a list of patches not owned by a package (?)
 
