@@ -1,6 +1,10 @@
-/*
+/* pacback.c
  *
+ * Print a list of the pacman backup files, along with the corresponding
+ * package name and md5sum.
  *
+ * Author:  Alastair Hughes
+ * Contact: <hobbitalastair at yandex dot com>
  */
 
 #include <stdio.h>
