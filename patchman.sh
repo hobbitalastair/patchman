@@ -9,6 +9,7 @@
 VERSION=0.1
 
 PACBACK="./pacback"
+PATCHDIR="./patches"
 CACHEDIR="/var/cache/pacman/pkg/"
 
 # Define some colors.
@@ -59,7 +60,9 @@ message() {
 list_changed() {
     # List the changed files.
     while IFS=" " read file sum pkg <&3; do
-        if [ ! -r "/${file}" ]; then
+        if [ -e "${PATCHDIR}/${file}/IGNORE" ]; then
+            message debug "Skipping ignored file ${file}"
+        elif [ ! -r "/${file}" ]; then
             message warn "Skipping ${file}"
         else 
             newsum="$(md5sum "/${file}" | cut -d' ' -f1)"
@@ -82,9 +85,8 @@ get_pkg_file() {
     # Print the actual packaged file to stdout.
     local file="$1"
 
-    local bsdtar_args="-O"
-    if [ "${2}" == "extract" ]; then
-        bsdtar_args=""
+    if [ "${2}" != "extract" ]; then
+        local bsdtar_args="-O"
     fi
 
     local pkgname
@@ -119,10 +121,10 @@ diff_file() {
     diff "${file}" <(get_pkg_file "${file}")
 }
 
-original_file() {
-    # Print the original file.
+print_file() {
+    # Print the unpatched file.
     local file="$1"
-    message debug "Printing original file for '${file}'"
+    message debug "Printing file for '${file}'"
     get_pkg_file "${file}"
 }
 
@@ -138,11 +140,13 @@ revert() {
 
 # Parse the arguments.
 VERBOSE="${VERBOSE:-1}"
-LIST_CHANGED=false
 FILE_ARGS=false
 ORIGINAL=false
-VIMDIFF=true
+
+LIST_CHANGED=false
+VIMDIFF=false
 DIFF=false
+PRINT=false
 REVERT=false
 TARGETS=()
 for arg in "$@"; do
@@ -156,10 +160,12 @@ for arg in "$@"; do
     ${C_OK}-d|--debug${C_RESET}              Run verbosely
     ${C_OK}-q|--quiet${C_RESET}              Run quitely
 
+    ${C_OK}-o|--original${C_RESET}           Use the original file unpatched
+
     ${C_OK}-l|--list-changed${C_RESET}       List the changed backup files
-    ${C_OK}-o|--original <files>${C_RESET}   Print the original versions
     ${C_OK}-i|--vimdiff <files>${C_RESET}    Interactively diff the files
     ${C_OK}-D|--diff <files>${C_RESET}       Diff the given files
+    ${C_OK}-p|--print <files>${C_RESET}      Print the patched file
     ${C_OK}-r|--revert <files>${C_RESET}     Revert the given files
 
 Author: Alastair Hughes <hobbitalastair at yandex dot com>\n"
@@ -170,8 +176,10 @@ Author: Alastair Hughes <hobbitalastair at yandex dot com>\n"
         -q|--quiet) export VERBOSE="0";;
         -d|--debug) export VERBOSE="2";;
 
+        -o|--original) ORIGINAL="true";;
+
         -l|--list-changed) LIST_CHANGED="true";;
-        -o|--original) ORIGINAL="true"; FILE_ARGS="true";;
+        -p|--print) PRINT="true"; FILE_ARGS="true";;
         -i|--vimdiff) VIMDIFF="true"; FILE_ARGS="true";;
         -D|--diff) DIFF="true"; FILE_ARGS="true";;
         -r|--revert) REVERT="true"; FILE_ARGS="true";;
@@ -201,8 +209,8 @@ for file in "${TARGETS[@]}"; do
     if [ ! -f "${file}" ]; then
         error 1 "Could not find file '${file}'"
     fi
-    if "${ORIGINAL}"; then
-        original_file "${file}"
+    if "${PRINT}"; then
+        print_file "${file}"
     fi
     if "${VIMDIFF}"; then
         vimdiff_file "${file}"

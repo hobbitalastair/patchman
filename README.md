@@ -27,5 +27,14 @@ Hooks need to run if:
 
 ## Drop-in DB ##
 
-Store patches in /var/lib or in /etc?
+Store patches in `/var/lib/patchman/<path>`.
+
+Order of handling for patches:
+- IGNORE                Don't list this file normally
+- `<path>` is a file    Use the file instead
+- `*.patch`             Apply the patches
+
+Additional flags:
+- -s|--save         Save the patch into the database
+- -u|--unowned      Print a list of patches not owned by a package (?)
 
