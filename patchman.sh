@@ -106,6 +106,12 @@ get_pkg_file() {
     fi
 }
 
+vimdiff_file() {
+    # Generate a diff for the given file.
+    local file="$1"
+    vimdiff "${file}" <(get_pkg_file "${file}")
+}
+
 diff_file() {
     # Generate a diff for the given file.
     local file="$1"
@@ -135,6 +141,7 @@ VERBOSE="${VERBOSE:-1}"
 LIST_CHANGED=false
 FILE_ARGS=false
 ORIGINAL=false
+VIMDIFF=true
 DIFF=false
 REVERT=false
 TARGETS=()
@@ -151,6 +158,7 @@ for arg in "$@"; do
 
     ${C_OK}-l|--list-changed${C_RESET}       List the changed backup files
     ${C_OK}-o|--original <files>${C_RESET}   Print the original versions
+    ${C_OK}-i|--vimdiff <files>${C_RESET}    Interactively diff the files
     ${C_OK}-D|--diff <files>${C_RESET}       Diff the given files
     ${C_OK}-r|--revert <files>${C_RESET}     Revert the given files
 
@@ -164,6 +172,7 @@ Author: Alastair Hughes <hobbitalastair at yandex dot com>\n"
 
         -l|--list-changed) LIST_CHANGED="true";;
         -o|--original) ORIGINAL="true"; FILE_ARGS="true";;
+        -i|--vimdiff) VIMDIFF="true"; FILE_ARGS="true";;
         -D|--diff) DIFF="true"; FILE_ARGS="true";;
         -r|--revert) REVERT="true"; FILE_ARGS="true";;
 
@@ -194,6 +203,9 @@ for file in "${TARGETS[@]}"; do
     fi
     if "${ORIGINAL}"; then
         original_file "${file}"
+    fi
+    if "${VIMDIFF}"; then
+        vimdiff_file "${file}"
     fi
     if "${DIFF}"; then
         diff_file "${file}"
