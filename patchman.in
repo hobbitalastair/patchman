@@ -117,7 +117,7 @@ get_pkg_file() {
             local patch
             for patch in "${PATCHDIR}/${file:1}/"*.patch; do
                 message debug "Applying patch ${patch} to ${path}"
-                patch "${path}" < "${patch}"
+                patch "${path}" < "${patch}" > /dev/null
             done
         fi
     fi
@@ -135,7 +135,7 @@ diff_file() {
     # Generate a diff for the given file.
     local file="$1"
     message debug "Generating diff for '${file}'"
-    diff "${file}" "$(get_pkg_file "${file}")"
+    diff "$(get_pkg_file "${file}")" "${file}"
 }
 
 print_file() {
