@@ -10,9 +10,9 @@ shopt -s nullglob
 
 VERSION=0.1
 
-PACBACK="@PACBACK@"
-PATCHDIR="@PATCHDIR@"
-PACCACHEDIR="@PACCACHEDIR@"
+PACBACK="${PACBACK:-@PACBACK@}"
+PATCHDIR="${PATCHDIR:-@PATCHDIR@}"
+PACCACHEDIR="${PACCACHEDIR:-@PACCACHEDIR@}"
 
 # Define some colors.
 # Alternative start appears to be '\x1b['
