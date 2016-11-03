@@ -88,7 +88,7 @@ get_pkg_file() {
     # Print a path to the actual packaged file to stdout.
     local file="$1"
 
-    local pkgname
+    local pkgname pkginfo version arch pkg
     pkgname="$(get_pkg_owning "${file}")" || exit "$?"
 
     pkginfo="$(pacman -Qi --color=never "${pkgname}")" || \
@@ -149,7 +149,8 @@ revert() {
     # Revert the given file to the one provided by the package.
     local file="$1"
     message debug "Reverting '${file}'"
-    mv "$(get_pkg_file "${file}")" "${file}"
+    mv -f "$(get_pkg_file "${file}")" "${file}" || \
+        error 1 "Failed to revert ${file}!"
 }
 
 save() {
@@ -157,7 +158,8 @@ save() {
     local file="$1"
     message debug "Saving '${file}'"
     if [ ! -d "${PATCHDIR}/$(dirname "${file:1}")" ]; then
-        mkdir -p "${PATCHDIR}/$(dirname "${file:1}")"
+        mkdir -p "${PATCHDIR}/$(dirname "${file:1}")" || \
+            error 1 "Failed to create ${PATCHDIR}/$(dirname "${file:1}")!"
     fi
     cat "${file}" > "${PATCHDIR}/${file:1}" || \
         error 1 "Failed to save '${file}'!"
@@ -167,7 +169,7 @@ ignore() {
     # Mark the given file as ignored.
     local file="$1"
     message debug "Marking '${file}' as ignored"
-    path="${PATCHDIR}/${file:1}"
+    local path="${PATCHDIR}/${file:1}"
     if [ ! -d "${path}" ]; then
         mkdir -p "${path}" || error 1 "Failed to create ${path}!"
     fi
