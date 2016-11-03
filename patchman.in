@@ -12,7 +12,7 @@ VERSION=0.1
 
 PACBACK="@PACBACK@"
 PATCHDIR="@PATCHDIR@"
-CACHEDIR="@CACHEDIR@"
+PACCACHEDIR="@PACCACHEDIR@"
 
 # Define some colors.
 # Alternative start appears to be '\x1b['
@@ -97,7 +97,7 @@ get_pkg_file() {
         rev | cut -d' ' -f1 | rev)"
     arch="$(printf "${pkginfo}" | grep '^Architecture' | \
         rev | cut -d' ' -f1 | rev)"
-    pkg="${CACHEDIR}/${pkgname}-${version}-${arch}"
+    pkg="${PACCACHEDIR}/${pkgname}-${version}-${arch}"
 
     if [ ! -f "${pkg}".pkg.tar.* ]; then
         error 3 "Could not find package for ${pkgname}"

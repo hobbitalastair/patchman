@@ -5,7 +5,7 @@ LIBEXECDIR = /usr/lib/patchman
 # patch database for patchman
 PATCHDIR = /var/lib/patchman
 # pacman's pkg cache
-CACHEDIR = /var/cache/pacman/pkg
+PACCACHEDIR = /var/cache/pacman/pkg
 # pacman's database path
 DBPATH = /var/lib/pacman
 
@@ -22,7 +22,7 @@ OBJS = $(patsubst %.c,%,$(wildcard *.c)) patchman.sh
 	sed $< \
 	    -e 's:@PACBACK@:$(LIBEXECDIR)/pacback:' \
 	    -e 's:@PATCHDIR@:$(PATCHDIR):' \
-	    -e 's:@CACHEDIR@:$(CACHEDIR):' > $@
+	    -e 's:@PACCACHEDIR@:$(PACCACHEDIR):' > $@
 
 all: $(OBJS)
 

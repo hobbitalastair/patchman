@@ -26,3 +26,9 @@ Order of handling for patches:
 - `<path>` is a file    Use the file instead
 - `*.patch`             Apply the patches
 
+## TODO ##
+
+- Provide hooks
+- Write tests
+- Write documentation (man page)
+
