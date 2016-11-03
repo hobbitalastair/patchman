@@ -23,6 +23,7 @@ OBJS = $(patsubst %.c,%,$(wildcard *.c)) patchman.sh
 	    -e 's:@PACBACK@:$(LIBEXECDIR)/pacback:' \
 	    -e 's:@PATCHDIR@:$(PATCHDIR):' \
 	    -e 's:@PACCACHEDIR@:$(PACCACHEDIR):' > $@
+	chmod +x $@
 
 all: $(OBJS)
 
