@@ -61,6 +61,7 @@ message() {
 
 list_changed() {
     # List the changed files.
+    local file sum pkg newsum
     while IFS=" " read file sum pkg <&3; do
         if [ -e "${PATCHDIR}/${file}/IGNORE" ]; then
             message debug "Skipping ignored file ${file}"
