@@ -15,12 +15,11 @@ PATCHDIR="${PATCHDIR:-@PATCHDIR@}"
 PACCACHEDIR="${PACCACHEDIR:-@PACCACHEDIR@}"
 
 # Define some colors.
-# Alternative start appears to be '\x1b['
-C_ERR="\033[31;1m"
-C_WARN="\033[33;1m"
-C_OK="\033[32;1m"
-C_BOLD="\033[39;1m"
-C_RESET="\033[39;0m"
+C_ERR="$(tput setaf 1; tput bold)"
+C_WARN="$(tput setaf 3; tput bold)"
+C_OK="$(tput setaf 2; tput bold)"
+C_BOLD="$(tput bold)"
+C_RESET="$(tput sgr0)"
 
 error() {
     local status="$1"
