@@ -1,21 +1,6 @@
 # pacback #
 
-File manager script
-
-## Goals ##
-
-- patchman replacement - manage patches to files
-- Provide a utility for monitoring backup files
-- Provide a utility for creating patches between modified and packaged files
-- Provide a utility for cleaning up uneeded changes
-- Use hooks for automation of updating files
-
-## Hooks ##
-
-Hooks need to run if:
-- A .pacnew file is generated (attempt to merge automatically, potentially
-  problematic with the current architecture)
-- A file in the "drop-in" db is changed.
+pacman-specific script for managing changes to system files.
 
 ## Drop-in DB ##
 
@@ -26,9 +11,22 @@ Order of handling for patches:
 - `<path>` is a file    Use the file instead
 - `*.patch`             Apply the patches
 
+## Notes ##
+
+I originally wanted to use hooks to automate updating files.
+However, doing so requires a "before and after" view of the files, to avoid
+overwriting custom changes.
+This largely defeats the purpose of having a "drop-in" folder - patchman.sh
+would need to provide an argument for adding, removing, and updating files,
+which would need to be (awkwardly) run by the install script of the packages.
+It also completely fails to work with hooks, since we can't automatically
+apply patches on updates to files.
+
+Instead, I'll resort to manually applying and removing patches.
+
 ## TODO ##
 
-- Provide hooks
-- Write tests
-- Write documentation (man page)
+Things I'd like to add:
+- Tests
+- Documentation (man page)
 
