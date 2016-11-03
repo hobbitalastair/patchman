@@ -8,7 +8,7 @@
 
 shopt -s nullglob
 
-VERSION=0.1
+VERSION=0.2
 
 PACBACK="${PACBACK:-@PACBACK@}"
 PATCHDIR="${PATCHDIR:-@PATCHDIR@}"
