@@ -8,7 +8,7 @@
 
 shopt -s nullglob
 
-VERSION=0.2
+VERSION=0.3
 
 PACBACK="${PACBACK:-@PACBACK@}"
 PATCHDIR="${PATCHDIR:-@PATCHDIR@}"
@@ -104,13 +104,13 @@ get_pkg_file() {
     if [ ! -f "${pkg}".pkg.tar.* ]; then
         error 3 "Could not find package for ${pkgname}"
     else
-        pushd "${TMPDIR}" > /dev/null
+        pushd "${PATCHTMPDIR}" > /dev/null
         bsdtar -xf "${pkg}".pkg.tar.* "${file:1}" || \
             error 3 "Failed to extract '${pkg}'!"
         popd > /dev/null
     fi
 
-    local path="${TMPDIR}/${file:1}"
+    local path="${PATCHTMPDIR}/${file:1}"
     if ! "${ORIGINAL}"; then
         if [ -f "${PATCHDIR}/${file:1}" ]; then
             message debug "Replacing file"
@@ -248,15 +248,15 @@ if [ "$#" -eq 0 ]; then
     printf "${C_BOLD}%s${C_RESET} %s\n" "${0}" "${VERSION}" 1>&2
 fi
 
+# Create a cachedir. This is used for extracting files, to preserve
+# permissions.
+PATCHTMPDIR="$(mktemp -d "${TMPDIR:-/tmp}/patchman.XXXX")" || \
+    error 1 "Could not create a temporary dir!"
+trap "rm -rf '${PATCHTMPDIR}'" EXIT
+
 if "${LIST_CHANGED}"; then
     list_changed
 fi
-
-# Create a cachedir. This is used for extracting files, to preserve
-# permissions.
-TMPDIR="$(mktemp -d "${TMPDIR:-/tmp}/patchman.XXXX")" || \
-    error 1 "Could not create a temporary dir!"
-trap "rm -rf '${TMPDIR}'" EXIT
 
 for file in "${TARGETS[@]}"; do
     if [ ! -f "${file}" ]; then
