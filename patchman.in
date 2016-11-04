@@ -67,8 +67,10 @@ list_changed() {
         elif [ ! -r "/${file}" ]; then
             message warn "Skipping ${file}"
         else 
-            if ! "${ORIGINAL}" && [ -f "${PATCHDIR}/${file}" ]; then
-                sum="$(md5sum "${PATCHDIR}/${file}" | cut -d' ' -f1)"
+            if ! "${ORIGINAL}" && [ -e "${PATCHDIR}/${file}" ]; then
+                local newfile="$(get_pkg_file "/${file}")" || \
+                    error 1 "Failed to extract file for ${file}!"
+                sum="$(md5sum "${newfile}" | cut -d' ' -f1)"
             fi
             newsum="$(md5sum "/${file}" | cut -d' ' -f1)"
             if [ -n "${newsum}" ] && [ "${newsum}" != "${sum}" ]; then
