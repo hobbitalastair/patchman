@@ -250,7 +250,7 @@ fi
 
 # Create a cachedir. This is used for extracting files, to preserve
 # permissions.
-PATCHTMPDIR="$(mktemp -d "${TMPDIR:-/tmp}/patchman.XXXX")" || \
+PATCHTMPDIR="$(mktemp -d "${TMPDIR:-/tmp}/patchman.XXXXXX")" || \
     error 1 "Could not create a temporary dir!"
 trap "rm -rf '${PATCHTMPDIR}'" EXIT
 
