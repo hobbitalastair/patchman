@@ -6,9 +6,9 @@
 # Email:    hobbitalastair at yandex dot com
 # Date:     24-9-2016
 
-shopt -s nullglob
+shopt -s nullglob extglob
 
-VERSION=0.3
+VERSION=0.4
 
 PACBACK="${PACBACK:-@PACBACK@}"
 PATCHDIR="${PATCHDIR:-@PATCHDIR@}"
@@ -101,11 +101,11 @@ get_pkg_file() {
         rev | cut -d' ' -f1 | rev)"
     pkg="${PACCACHEDIR}/${pkgname}-${version}-${arch}"
 
-    if [ ! -f "${pkg}".pkg.tar.* ]; then
+    if [ ! -f "${pkg}".pkg.tar.!(*.sig) ]; then
         error 3 "Could not find package for ${pkgname}"
     else
         pushd "${PATCHTMPDIR}" > /dev/null
-        bsdtar -xf "${pkg}".pkg.tar.* "${file:1}" || \
+        bsdtar -xf "${pkg}".pkg.tar.!(*.sig) "${file:1}" || \
             error 3 "Failed to extract '${pkg}'!"
         popd > /dev/null
     fi
